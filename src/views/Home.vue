@@ -118,7 +118,7 @@ export default {
   },
   methods: {
     getNotes() {
-      const path = "http://localhost:50235/api/Notes";
+      const path = "http://localhost:64960/api/NoteMs";
       axios
         .get(path)
         .then((res) => {
@@ -130,12 +130,13 @@ export default {
         });
     },
     addNote(payload) {
-      const path = "http://localhost:50235/api/Notes";
+      const path = "http://localhost:64960/api/NoteMs";
       const headers = { 
         "Content-Type": "application/json"
       };
       axios.post(path, payload, { headers })
         .then(() => {
+          console.log("POST запрос был добавлен") 
           this.getNotes();
           this.message = "Заметка добавлена";
           this.showMessage = true;
