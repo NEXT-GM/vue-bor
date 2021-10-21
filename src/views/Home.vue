@@ -6,7 +6,11 @@
         <hr />
         <br /><br />
         <alert :message="message" v-if="showMessage"></alert>
-        <button type="button" class="btn btn-success btn-sm" v-b-modal.note-modal>
+        <button
+          type="button"
+          class="btn btn-success btn-sm"
+          v-b-modal.note-modal
+        >
           Добавить заметку
         </button>
         <br /><br />
@@ -28,6 +32,7 @@
                 <button type="button" class="btn btn-warning btn-sm">
                   Изменить
                 </button>
+
                 <button type="button" class="btn btn-danger btn-sm">
                   Удалить
                 </button>
@@ -82,7 +87,7 @@
         >
           <b-form-input
             id="form-createTime-input"
-            type="text"
+            type="date"
             v-model="addNoteForm.createTime"
             required
           >
@@ -93,24 +98,87 @@
         <b-button type="reset" variant="danger">Сбросить</b-button>
       </b-form>
     </b-modal>
+
+
+    <b-modal
+      ref="editNoteMModal"
+      id="book-update-modal"
+      title="Изменить"
+      hide-footer
+    >
+      <b-form @submit="onSubmitUpdate" @reset="onResetUpdate" class="w-100">
+
+        <b-form-group
+          id="form-title-edit-group"
+          label="Заголовок:"
+          label-for="form-title-edit-input"
+        >
+          <b-form-input
+            id="form-title-edit-input"
+            type="text"
+            v-model="editForm.title"
+            required
+            placeholder="Введите название"
+          >
+          </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+          id="form-body-edit-group"
+          label="Текст:"
+          label-for="form-body-edit-input"
+        >
+          <b-form-input
+            id="form-body-edit-input"
+            type="text"
+            v-model="editForm.body"
+            required
+            placeholder="Введите текст заметки"
+          >
+          </b-form-input>
+        </b-form-group>
+
+        <b-form-group 
+        id="form-createDate-edit-group"
+        label="Дата изменения:"
+        label-for="form-createDate-edit-input"
+        >
+          <b-form-input
+            id="form-createDate-edit-input"
+            type="date"
+            v-model="editForm.createTime"
+            required
+          >
+        </b-form-group>
+
+        <b-button type="submit" variant="primary">Update</b-button>
+        <b-button type="reset" variant="danger">Cancel</b-button>
+      </b-form>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import Alert from "../components/Alert"
+import Alert from "../components/Alert";
 
 export default {
   data() {
     return {
       notes: [],
       addNoteForm: {
-        title: '',
-        body: '',
-        createTime: ''
+        title: "",
+        body: "",
+        createTime: "",
       },
-      message: '',
-      showMessage: false
+      message: "",
+      showMessage: false,
+      editForm: {
+        id: "",
+        title: "",
+        body: "",
+        createTime: "",
+      },
     };
   },
   components: {
@@ -131,12 +199,13 @@ export default {
     },
     addNote(payload) {
       const path = "http://localhost:64960/api/NoteMs";
-      const headers = { 
-        "Content-Type": "application/json"
+      const headers = {
+        "Content-Type": "application/json",
       };
-      axios.post(path, payload, { headers })
+      axios
+        .post(path, payload, { headers })
         .then(() => {
-          console.log("POST запрос был добавлен") 
+          console.log("POST запрос был добавлен");
           this.getNotes();
           this.message = "Заметка добавлена";
           this.showMessage = true;
@@ -148,9 +217,9 @@ export default {
         });
     },
     initForm() {
-      this.addNoteForm.title = '';
-      this.addNoteForm.body = '';
-      this.addNoteForm.createTime = '';
+      this.addNoteForm.title = "";
+      this.addNoteForm.body = "";
+      this.addNoteForm.createTime = "";
     },
     onSubmit(evt) {
       evt.preventDefault();
@@ -159,7 +228,7 @@ export default {
       const payload = {
         title: this.addNoteForm.title,
         body: this.addNoteForm.body,
-        createTime: this.addNoteForm.createTime
+        createTime: this.addNoteForm.createTime,
       };
 
       this.addNote(payload);
@@ -171,6 +240,7 @@ export default {
       this.initForm();
     },
   },
+
   created() {
     this.getNotes();
   },
