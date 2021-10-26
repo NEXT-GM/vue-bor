@@ -29,7 +29,12 @@
               <td>{{ note.body }}</td>
               <td>{{ note.createTime }}</td>
               <td>
-                <button type="button" class="btn btn-warning btn-sm">
+                <button
+                  type="button"
+                  class="btn btn-warning btn-sm"
+                  v-b-modal.note-update-modal
+                  @click="editNote(note)"
+                >
                   Изменить
                 </button>
 
@@ -80,34 +85,18 @@
           </b-form-input>
         </b-form-group>
 
-        <b-form-group
-          id="form-createTime-group"
-          label="Дата создания:"
-          label-for="form-createTime-input"
-        >
-          <b-form-input
-            id="form-createTime-input"
-            type="date"
-            v-model="addNoteForm.createTime"
-            required
-          >
-          </b-form-input>
-        </b-form-group>
-
         <b-button type="submit" variant="primary">Сохранить</b-button>
         <b-button type="reset" variant="danger">Сбросить</b-button>
       </b-form>
     </b-modal>
 
-
     <b-modal
-      ref="editNoteMModal"
-      id="book-update-modal"
+      ref="editNoteModal"
+      id="NoteM-update-modal"
       title="Изменить"
       hide-footer
     >
       <b-form @submit="onSubmitUpdate" @reset="onResetUpdate" class="w-100">
-
         <b-form-group
           id="form-title-edit-group"
           label="Заголовок:"
@@ -138,10 +127,10 @@
           </b-form-input>
         </b-form-group>
 
-        <b-form-group 
-        id="form-createDate-edit-group"
-        label="Дата изменения:"
-        label-for="form-createDate-edit-input"
+        <b-form-group
+          id="form-createDate-edit-group"
+          label="Дата изменения:"
+          label-for="form-createDate-edit-input"
         >
           <b-form-input
             id="form-createDate-edit-input"
@@ -149,6 +138,7 @@
             v-model="editForm.createTime"
             required
           >
+          </b-form-input>
         </b-form-group>
 
         <b-button type="submit" variant="primary">Update</b-button>
@@ -185,6 +175,34 @@ export default {
     alert: Alert,
   },
   methods: {
+    updateNoteM(payload, noteID) {
+      const path = `http://localhost:64960/api/NoteMs/${noteID}`;
+      axios
+        .put(path, payload)
+        .then(() => {
+          this.getNoteMs();
+        })
+        .catch((error) => {
+          // eslint-отключение следующей строки
+          console.error(error);
+          this.getNoteMs();
+        });
+    },
+    updateNoteM(payload, noteID) {
+      const path = `http://localhost:64960/api/NoteMs/${noteID}`;
+      axios
+        .put(path, payload)
+        .then(() => {
+          this.getNoteMs();
+          this.message = "Book updated!";
+          this.showMessage = true;
+        })
+        .catch((error) => {
+          // eslint-отключение следующей строки
+          console.error(error);
+          this.getNoteMs();
+        });
+    },
     getNotes() {
       const path = "http://localhost:64960/api/NoteMs";
       axios
@@ -238,6 +256,32 @@ export default {
       evt.preventDefault();
       this.$refs.addNoteModal.hide();
       this.initForm();
+    },
+    onSubmitUpdate(evt) {
+      evt.preventDefault();
+      this.$refs.editNoteModal.hide();
+
+      const payload = {
+        id: this.editForm.id,
+        title: this.editForm.title,
+        body: this.editForm.body,
+      };
+      this.updateNoteM(payload, this.editForm.id);
+    },
+    onResetUpdate(evt) {
+      evt.preventDefault();
+      this.$refs.editNoteModal.hide();
+      this.initForm();
+      this.getNoteMs();
+    },
+    initForm() {
+      this.addNoteForm.title = "";
+      this.addNoteForm.CreateDate = "";
+      this.addNoteForm.body = [];
+      this.editForm.id = "";
+      this.editForm.title = "";
+      this.editForm.CreateDate = "";
+      this.editForm.body = [];
     },
   },
 
